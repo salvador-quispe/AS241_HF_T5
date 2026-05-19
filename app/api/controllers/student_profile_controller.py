@@ -7,6 +7,7 @@ from fastapi import APIRouter, Query
 from typing import List
 
 from app.services.student_profile_service import (
+    get_tasa_retencion,
     build_dashboard,
     get_kpi_metrics,
     get_gender_distribution,
@@ -97,3 +98,8 @@ def get_riesgo():
 def get_insights_endpoint():
     """Insights y recomendaciones del análisis"""
     return get_insights()
+@router.get("/tasa-retencion")
+def get_tasa_retencion_endpoint():
+    """Tasa de retención académica"""
+    from app.services.student_profile_service import get_tasa_retencion
+    return get_tasa_retencion()

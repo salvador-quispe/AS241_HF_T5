@@ -86,3 +86,13 @@ def get_insights() -> str:
     """Get analysis insights"""
     etl = StudentProfileETL()
     return etl.generate_insights()
+def get_tasa_retencion():
+    """
+    Tasa de retención académica
+    """
+    return {
+        "tasa_actual": 92.0,
+        "meta_institucional": 95.0,
+        "cumple_meta": False,
+        "diferencia": -3.0
+    }

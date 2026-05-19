@@ -1,13 +1,5 @@
-"""
-Routes package
-Centralized route registration
-"""
+from fastapi import APIRouter
+from app.api.controllers.student_profile_controller import router as perfil_router
 
-from app.api.controllers.student_profile_controller import router as student_profile_router
-
-# List of all routers to be included in main app
-routers = [
-    student_profile_router,
-]
-
-__all__ = ['routers']
+api_router = APIRouter()
+api_router.include_router(perfil_router)

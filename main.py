@@ -1,5 +1,5 @@
 """
-AS241_HF_T5 - Student Profile BI Dashboard
+AS241_HF_T5 - Habilidades Blandas BI Dashboard
 Main application entry point
 """
 
@@ -12,8 +12,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="AS241_HF_T5 - Perfil Estudiante API",
-    description="Backend para análisis de encuestas - Módulo Perfil del Estudiante",
+    title="AS241_HF_T5 - Habilidades Blandas API",
+    description="Backend para análisis de encuestas - Módulo de Habilidades Blandas",
     version="1.0.0",
 )
 
@@ -31,19 +31,17 @@ app.include_router(api_router)
 @app.get("/")
 def root():
     return {
-        "app": "AS241_HF_T5 - Perfil Estudiante API",
+        "app": "AS241_HF_T5 - Habilidades Blandas API",
         "version": "1.0.0",
-        "modulo": "Perfil del Estudiante",
+        "modulo": "Habilidades Blandas",
         "endpoints": {
-            "dashboard": "/api/perfil-estudiante/dashboard",
-            "kpi": "/api/perfil-estudiante/kpi",
-            "genero": "/api/perfil-estudiante/genero",
-            "carreras": "/api/perfil-estudiante/carreras",
-            "distritos": "/api/perfil-estudiante/distritos",
-            "semestres": "/api/perfil-estudiante/semestres",
-            "edades": "/api/perfil-estudiante/edades",
-            "riesgo": "/api/perfil-estudiante/riesgo",
-            "insights": "/api/perfil-estudiante/insights",
+            "dashboard": "/api/habilidades-blandas/dashboard",
+            "kpi": "/api/habilidades-blandas/kpi",
+            "promedios": "/api/habilidades-blandas/promedios",
+            "mejorar": "/api/habilidades-blandas/mejorar",
+            "satisfaccion": "/api/habilidades-blandas/satisfaccion",
+            "interes": "/api/habilidades-blandas/interes",
+            "insights": "/api/habilidades-blandas/insights",
         },
     }
 

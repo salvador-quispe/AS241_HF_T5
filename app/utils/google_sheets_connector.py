@@ -5,8 +5,12 @@ Uses pandas to read CSV export from Google Forms/Sheets
 
 import pandas as pd
 import logging
+import ssl
 from typing import Optional, Tuple
 from datetime import datetime
+
+# Bypass SSL context verification for macOS compatibility
+ssl._create_default_https_context = ssl._create_unverified_context
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -63,7 +67,7 @@ class GoogleSheetsConnector:
     
     def clean_data(self) -> pd.DataFrame:
         """
-        Clean and transform raw data for BI analysis
+        Clean and transform raw data using positional mapping matching database.py.
         
         Returns:
             pd.DataFrame: Cleaned dataset
@@ -72,62 +76,40 @@ class GoogleSheetsConnector:
             logger.warning("No data loaded. Call connect() first")
             return None
         
-        df = self.raw_data.copy()
-        
-        # Limpiar espacios en nombres de columnas
-        df.columns = df.columns.str.strip()
-        
-        # Debug: imprimir nombres reales de columnas
-        logger.info("Actual column names from Google Sheets:")
-        for i, col in enumerate(df.columns):
-            logger.info(f"  {i+1}. {col}")
-        
-        # Mapeo de nombres correctos (usando los nombres reales que ves en el debug)
-        column_mapping = {
-            'Marca temporal': 'survey_date',
-            'Edad (en años)': 'age',
-            'Distrito de residencia del estudiante': 'district',
-            'Semestre académico actual': 'semester',
-            'Carrera Profesional del Estudiante': 'career',
-            'Ingrese su número de Documento Nacional de Identidad (DNI)': 'dni',
-            '¿Cómo calificas tu nivel de conocimientos técnicos en tu carrera?': 'tech_knowledge',
-            '¿Qué tan preparado te sientes para aplicar tus conocimientos en un entorno laboral real?': 'practical_readiness',
-            '¿Qué tan preparado te sientes para ingresar al mercado laboral?': 'job_readiness',
-            '¿Sientes que tu institución te ha preparado adecuadamente?': 'institution_preparation',
-            '¿Qué tan importante considera la comunicación efectiva en su formación profesional?': 'communication_importance',
-            '¿Qué tan importante considera el trabajo en equipo en el ámbito académico y laboral?': 'teamwork_importance',
-            '¿Qué tan importante considera la capacidad para resolver problemas en su desarrollo profesional?': 'problem_solving_importance',
-            '¿Qué tan importante considera la adaptabilidad frente a cambios o nuevas situaciones?': 'adaptability_importance',
-            '¿Qué tan importante considera la organización y el manejo del tiempo en su desempeño académico?': 'organization_importance'
+        # Exact mapping for Habilidades Blandas ONLY
+        habilidades_mapping = {
+            '¿Qué tan importante considera la comunicación efectiva en su formación profesional?': 'importancia_comunicacion_efectiva',
+            '¿Qué tan importante considera el trabajo en equipo en el ámbito académico y laboral?': 'importancia_trabajo_equipo',
+            '¿Qué tan importante considera la capacidad para resolver problemas en su desarrollo profesional?': 'importancia_resolucion_problemas',
+            '¿Qué tan importante considera la adaptabilidad frente a cambios o nuevas situaciones?': 'importancia_adaptabilidad',
+            '¿Qué tan importante considera la organización y el manejo del tiempo en su desempeño académico?': 'importancia_organizacion_tiempo',
+            '¿Sientes que tu institución te ha preparado adecuadamente?': 'institucion_preparo_adecuadamente',
+            '¿Te gustaría recibir más formación en habilidades profesionales?': 'recibir_mas_formacion',
+            '¿Qué habilidades consideras que necesitas mejorar?': 'habilidades_a_mejorar'
         }
         
-        # Aplicar mapeo solo para columnas que existen
-        for old_name, new_name in column_mapping.items():
-            if old_name in df.columns:
-                df = df.rename(columns={old_name: new_name})
+        # Keep only the relevant columns based on exact string match (stripped)
+        df = self.raw_data.copy()
+        df.columns = df.columns.str.strip()
+        cols_to_keep = [col for col in df.columns if col in habilidades_mapping]
+        df = df[cols_to_keep].copy()
         
-        # Convertir edad a numérico
-        if 'age' in df.columns:
-            df['age'] = pd.to_numeric(df['age'], errors='coerce')
+        # Rename them to the backend keys
+        df = df.rename(columns=habilidades_mapping)
         
-        # Limpiar semestre (extraer número)
-        if 'semester' in df.columns:
-            df['semester'] = df['semester'].astype(str).str.replace('° Semestre', '').str.strip()
-            df['semester'] = pd.to_numeric(df['semester'], errors='coerce')
+        # Convert numeric columns
+        NUMERIC_COLS = [
+            "importancia_comunicacion_efectiva",
+            "importancia_trabajo_equipo", "importancia_resolucion_problemas",
+            "importancia_adaptabilidad", "importancia_organizacion_tiempo"
+        ]
         
-        # Eliminar filas con valores críticos nulos
-        initial_count = len(df)
-        critical_cols = ['age', 'semester']
-        existing_critical = [col for col in critical_cols if col in df.columns]
-        if existing_critical:
-            df = df.dropna(subset=existing_critical)
-        
-        if initial_count > len(df):
-            logger.warning(f"Removed {initial_count - len(df)} rows with null critical values")
+        for col in NUMERIC_COLS:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors="coerce")
         
         self.cleaned_data = df
-        logger.info(f"✅ Data cleaning complete! {len(df)} valid records")
-        
+        logger.info(f"✅ Data cleaning complete! {len(df)} records processed")
         return df
     
     def refresh(self) -> pd.DataFrame:

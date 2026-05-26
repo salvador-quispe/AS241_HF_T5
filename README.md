@@ -2,57 +2,61 @@
 
 Backend para analizar encuestas de brechas académicas y empleabilidad. Los datos se obtienen en vivo desde Google Sheets (sin base de datos), se procesan con pandas y numpy, y se exponen vía API REST y CLI.
 
-## Requisitos
+## Requisitos previos
 
 - Python 3.10+
-- pip
 
 ## Instalación
 
 ```bash
-pip install numpy==1.26.4 pandas==2.2.3
+python -m venv venv
+.\venv\Scripts\Activate
+pip install -r requirements.txt
 ```
 
-Dependencias adicionales (uvicorn, pydantic, etc.):
+## Cómo ejecutar
+
+### API REST
 
 ```bash
-pip install "fastapi[standard]" python-dotenv
-```
-
-## Ejecutar API
-
-```bash
+.\venv\Scripts\Activate
 uvicorn main:app --reload --port 8000
 ```
 
-### Endpoints
+### Endpoints (Postman / navegador)
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/` | Información del proyecto |
-| GET | `/api/brechas/dashboard` | Dashboard completo de Brechas (16 indicadores) |
-| GET | `/api/empleabilidad/dashboard` | Dashboard completo de Empleabilidad (18 indicadores) |
-| GET/POST | `/api/etl/load` | Recarga forzada desde Google Sheets |
+| URL | Descripción |
+|-----|-------------|
+| `http://127.0.0.1:8000/` | Información del proyecto |
+| `http://127.0.0.1:8000/api/brechas/dashboard` | Dashboard completo de Brechas |
+| `http://127.0.0.1:8000/api/empleabilidad/dashboard` | Dashboard completo de Empleabilidad |
+| `http://127.0.0.1:8000/api/etl/load` | Recarga forzada desde Google Sheets |
 
-### Probar con curl
-
-```bash
-curl http://127.0.0.1:8000/api/brechas/dashboard
-curl http://127.0.0.1:8000/api/empleabilidad/dashboard
-```
-
-## CLI
+### CLI
 
 ```bash
-python cli.py                    # Ver todos los módulos completos
+python cli.py                    # Todos los módulos
 python cli.py list               # Lista de comandos disponibles
-python cli.py raw                # Datos crudos + distribuciones
+python cli.py raw                # Datos crudos
 ```
+
+## Explicación de funcionamiento
+
+```
+Google Sheets (CSV) → caché 30s → DataFrame → API REST + CLI
+```
+
+- No usa base de datos. Todo vive en memoria.
+- Cada consulta trae datos frescos del Google Sheets (caché de 30s).
+- Agregar datos nuevos en la sheet → aparecen automáticamente.
+- Recarga forzada: `GET /api/etl/load`.
+
+## Comandos CLI
 
 ### Módulo Brechas
 
 ```bash
-python cli.py brechas                          # Dashboard completo de brechas
+python cli.py brechas                          # Dashboard completo
 python cli.py brechas.conocimientos            # Nivel de conocimientos técnicos
 python cli.py brechas.dominio                  # Nivel de dominio de herramientas digitales
 python cli.py brechas.frecuencia               # Frecuencia de uso de herramientas digitales
@@ -74,7 +78,7 @@ python cli.py brechas.uso_carrera              # % estudiantes que usan herramie
 ### Módulo Empleabilidad
 
 ```bash
-python cli.py empleabilidad                          # Dashboard completo de empleabilidad
+python cli.py empleabilidad                          # Dashboard completo
 python cli.py empleabilidad.indicador                # Indicador general de empleabilidad
 python cli.py empleabilidad.preparacion              # Preparación para ingresar al mercado laboral
 python cli.py empleabilidad.institucional            # Preparación institucional percibida
@@ -93,50 +97,4 @@ python cli.py empleabilidad.valoradas                # Ranking de habilidades m�
 python cli.py empleabilidad.debiles                  # Ranking de habilidades más débiles
 python cli.py empleabilidad.listos                   # Estudiantes listos para el mercado laboral
 python cli.py empleabilidad.insuficientes            # Estudiantes que consideran insuficiente la preparación
-```
-
-## Cómo funciona
-
-```
-Google Sheets (CSV en vivo)
-        │
-        ▼
-config/database.py  ← caché de 30 segundos
-        │
-        ▼
-    pd.DataFrame
-        │
-        ├──► services/brechas.py      ← cálculos con pandas/numpy
-        └──► services/empleabilidad.py ← cálculos con pandas/numpy
-                    │
-                    ▼
-        api/controllers/  +  cli.py  (API REST + línea de comandos)
-```
-
-- No usa base de datos. Todo vive en memoria.
-- Cada consulta trae datos frescos del Google Sheets (caché de 30s).
-- Agregar una fila nueva en la sheet → aparece automáticamente en la próxima consulta.
-- Para recarga forzada inmediata: `GET /api/etl/load`.
-
-## Estructura del proyecto
-
-```
-main.py                    ← FastAPI (punto de entrada)
-cli.py                     ← CLI con todos los comandos
-.env                       ← GOOGLE_SHEET_URL
-requirements.txt           ← dependencias
-.gitignore
-app/
-├── config/database.py     ← fetch + caché desde Google Sheets
-├── etl/loader.py          ← transformación de columnas
-├── schemas/
-│   ├── brechas.py         ← modelos Pydantic
-│   └── empleabilidad.py
-├── services/
-│   ├── brechas.py         ← análisis de brechas
-│   └── empleabilidad.py   ← análisis de empleabilidad
-└── api/controllers/
-    ├── brechas.py         ← endpoint /api/brechas/dashboard
-    ├── empleabilidad.py   ← endpoint /api/empleabilidad/dashboard
-    └── etl.py             ← endpoint /api/etl/load
 ```

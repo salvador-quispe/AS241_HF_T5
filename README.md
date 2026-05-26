@@ -63,12 +63,12 @@ python cli.py brechas.habilidades              # Habilidades que necesitan mejor
 python cli.py brechas.carrera                  # Comparación por carrera profesional
 python cli.py brechas.semestre                 # Comparación por semestre académico
 python cli.py brechas.edad                     # Comparación por edad
-python cli.py brechas.brecha_tecnica           # Brecha técnica promedio
-python cli.py brechas.brecha_digital           # Brecha digital promedio
+python cli.py brechas.tecnica                  # Brecha técnica promedio
+python cli.py brechas.digital                  # Brecha digital promedio
 python cli.py brechas.blandas                  # Brecha de habilidades blandas
 python cli.py brechas.sin_formacion            # Estudiantes sin formación digital
 python cli.py brechas.bajo_dominio             # Estudiantes con bajo dominio tecnológico
-python cli.py brechas.uso_herramientas         # % que usan herramientas de su carrera
+python cli.py brechas.uso_carrera              # % estudiantes que usan herramientas de su carrera
 ```
 
 ### Módulo Empleabilidad
@@ -77,22 +77,22 @@ python cli.py brechas.uso_herramientas         # % que usan herramientas de su c
 python cli.py empleabilidad                          # Dashboard completo de empleabilidad
 python cli.py empleabilidad.indicador                # Indicador general de empleabilidad
 python cli.py empleabilidad.preparacion              # Preparación para ingresar al mercado laboral
-python cli.py empleabilidad.preparacion_institucional # Preparación institucional percibida
+python cli.py empleabilidad.institucional            # Preparación institucional percibida
 python cli.py empleabilidad.dificultad               # Dificultad percibida para conseguir trabajo
 python cli.py empleabilidad.practicas                # Porcentaje con prácticas preprofesionales
-python cli.py empleabilidad.formacion                # Interés en recibir más formación profesional
+python cli.py empleabilidad.interes                  # Interés en recibir más formación profesional
 python cli.py empleabilidad.comunicacion             # Importancia de comunicación efectiva
 python cli.py empleabilidad.equipo                   # Importancia del trabajo en equipo
 python cli.py empleabilidad.problemas                # Importancia de resolución de problemas
 python cli.py empleabilidad.adaptabilidad            # Importancia de la adaptabilidad
 python cli.py empleabilidad.organizacion             # Importancia de organización y manejo del tiempo
-python cli.py empleabilidad.centro_evaluacion        # Importancia del centro de evaluación
+python cli.py empleabilidad.centro                   # Importancia del centro de evaluación
 python cli.py empleabilidad.carrera                  # Comparación de empleabilidad por carrera
 python cli.py empleabilidad.semestre                 # Comparación de empleabilidad por semestre
 python cli.py empleabilidad.valoradas                # Ranking de habilidades más valoradas
 python cli.py empleabilidad.debiles                  # Ranking de habilidades más débiles
 python cli.py empleabilidad.listos                   # Estudiantes listos para el mercado laboral
-python cli.py empleabilidad.insuficiente             # Estudiantes que consideran insuficiente la preparación
+python cli.py empleabilidad.insuficientes            # Estudiantes que consideran insuficiente la preparación
 ```
 
 ## Cómo funciona
@@ -116,7 +116,7 @@ config/database.py  ← caché de 30 segundos
 - No usa base de datos. Todo vive en memoria.
 - Cada consulta trae datos frescos del Google Sheets (caché de 30s).
 - Agregar una fila nueva en la sheet → aparece automáticamente en la próxima consulta.
-- Para recarga forzada inmediata: `GET /api/etl/load` o `python cli.py --reload`.
+- Para recarga forzada inmediata: `GET /api/etl/load`.
 
 ## Estructura del proyecto
 

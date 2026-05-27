@@ -1,0 +1,256 @@
+{
+  "info": {
+    "name": "AS241_HF_T5 - Perfil del Estudiante",
+    "description": "API para dashboard de perfil de estudiante - Brechas y Empleabilidad",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Dashboard Completo",
+      "item": [
+        {
+          "name": "Dashboard Completo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/perfil-estudiante/dashboard",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "8000",
+              "path": ["api", "perfil-estudiante", "dashboard"]
+            },
+            "description": "Obtiene el dashboard completo con todos los indicadores: KPI, distribución por género, carreras, distritos, semestres, edades, riesgo académico e insights"
+          },
+          "response": []
+        },
+        {
+          "name": "Insights",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/perfil-estudiante/insights",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "8000",
+              "path": ["api", "perfil-estudiante", "insights"]
+            },
+            "description": "Obtiene solo los insights y recomendaciones del análisis"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 - Indicadores KPI",
+      "item": [
+        {
+          "name": "KPI Métricas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/perfil-estudiante/kpi",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "8000",
+              "path": ["api", "perfil-estudiante", "kpi"]
+            },
+            "description": "Tarjetas de KPI: total estudiantes, edad promedio, estudiantes en riesgo, logro institucional"
+          },
+          "response": []
+        },
+        {
+          "name": "Tasa de Retención",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/perfil-estudiante/tasa-retencion",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "8000",
+              "path": ["api", "perfil-estudiante", "tasa-retencion"]
+            },
+            "description": "Tasa de retención académica actual vs meta institucional"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 - Distribuciones Demográficas",
+      "item": [
+        {
+          "name": "Distribución por Género",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/perfil-estudiante/genero",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "8000",
+              "path": ["api", "perfil-estudiante", "genero"]
+            },
+            "description": "Distribución de estudiantes por género (hombres/mujeres)"
+          },
+          "response": []
+        },
+        {
+          "name": "Distribución por Carreras",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/perfil-estudiante/carreras",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "8000",
+              "path": ["api", "perfil-estudiante", "carreras"]
+            },
+            "description": "Distribución de estudiantes por carrera profesional (con desglose por género)"
+          },
+          "response": []
+        },
+        {
+          "name": "Distribución por Semestres",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/perfil-estudiante/semestres",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "8000",
+              "path": ["api", "perfil-estudiante", "semestres"]
+            },
+            "description": "Distribución de estudiantes por semestre académico"
+          },
+          "response": []
+        },
+        {
+          "name": "Distribución por Edades",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/perfil-estudiante/edades",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "8000",
+              "path": ["api", "perfil-estudiante", "edades"]
+            },
+            "description": "Distribución de estudiantes por rangos de edad (17-18, 19-20, 21-22, 23-25, 26+)"
+          },
+          "response": []
+        },
+        {
+          "name": "Distribución por Distritos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/perfil-estudiante/distritos?top_n=6",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "8000",
+              "path": ["api", "perfil-estudiante", "distritos"],
+              "query": [
+                {
+                  "key": "top_n",
+                  "value": "6",
+                  "description": "Número de distritos a mostrar (por defecto 6)"
+                }
+              ]
+            },
+            "description": "Distribución de estudiantes por distrito de procedencia. Se puede cambiar el top_n (ej: top_n=10)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 - Análisis de Riesgo",
+      "item": [
+        {
+          "name": "Riesgo por Semestre",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/perfil-estudiante/riesgo",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "8000",
+              "path": ["api", "perfil-estudiante", "riesgo"]
+            },
+            "description": "Estudiantes en riesgo académico (preparación laboral <= 2) agrupados por semestre"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 - Health Check",
+      "item": [
+        {
+          "name": "Root - Info Proyecto",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "8000",
+              "path": [""]
+            },
+            "description": "Información básica del proyecto"
+          },
+          "response": []
+        },
+        {
+          "name": "Documentación Swagger",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/docs",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "8000",
+              "path": ["docs"]
+            },
+            "description": "Documentación interactiva Swagger UI de la API"
+          },
+          "response": []
+        },
+        {
+          "name": "Documentación Redoc",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/redoc",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "8000",
+              "path": ["redoc"]
+            },
+            "description": "Documentación alternativa ReDoc de la API"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    }
+  ]
+}

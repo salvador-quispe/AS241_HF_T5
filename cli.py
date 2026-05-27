@@ -4,8 +4,7 @@ CLI - Perfil del Estudiante
 Uso:
   python cli.py                         Dashboard completo
   python cli.py kpi                     Solo KPI
-  python cli.py genero                  Distribución por género
-  python cli.py carreras                Distribución por carreras
+  python cli.py preparacion             Distribución por preparación laboral
   python cli.py distritos [N]           Distribución por distritos (top N)
   python cli.py semestres               Distribución por semestres
   python cli.py edades                  Distribución por edades
@@ -26,8 +25,7 @@ pd.set_option("display.max_colwidth", 50)
 from app.services.student_profile_service import (
     build_dashboard,
     get_kpi_metrics,
-    get_gender_distribution,
-    get_career_distribution,
+    get_job_readiness_distribution,
     get_district_distribution,
     get_semester_distribution,
     get_age_distribution,
@@ -122,8 +120,7 @@ def show_list():
     print()
     print("  📈 MÉTRICAS PRINCIPALES:")
     print("    python cli.py kpi                     → Indicadores KPI")
-    print("    python cli.py genero                  → Distribución por género")
-    print("    python cli.py carreras                → Distribución por carrera")
+    print("    python cli.py preparacion             → Distribución por preparación laboral")
     print("    python cli.py distritos [N]           → Distribución por distrito (top N)")
     print("    python cli.py semestres               → Distribución por semestre")
     print("    python cli.py edades                  → Distribución por rango de edad")
@@ -155,11 +152,8 @@ def main():
     if cmd == "kpi":
         show("PERFIL DEL ESTUDIANTE - Indicadores KPI", get_kpi_metrics())
     
-    elif cmd == "genero":
-        show("PERFIL DEL ESTUDIANTE - Distribución por Género", get_gender_distribution())
-    
-    elif cmd == "carreras":
-        show("PERFIL DEL ESTUDIANTE - Distribución por Carrera", get_career_distribution())
+    elif cmd in ("preparacion", "job-readiness"):
+        show("PERFIL DEL ESTUDIANTE - Preparación Laboral", get_job_readiness_distribution())
     
     elif cmd == "distritos":
         top_n = int(args[1]) if len(args) > 1 and args[1].isdigit() else 6

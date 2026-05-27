@@ -91,11 +91,11 @@ class StudentProfileRepository:
             return etl.get_kpi_metrics()
         return None
     
-    def get_career_distribution(self, force_refresh: bool = False) -> Optional[list]:
-        """Get career distribution data"""
+    def get_job_readiness_distribution(self, force_refresh: bool = False) -> Optional[list]:
+        """Get job readiness distribution data"""
         etl = self.load_data(force_refresh)
         if etl:
-            return etl.get_career_distribution()
+            return etl.get_job_readiness_distribution()
         return None
     
     def get_district_distribution(self, top_n: int = 5, force_refresh: bool = False) -> Optional[list]:

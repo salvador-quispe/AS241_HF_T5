@@ -7,11 +7,9 @@ from fastapi import APIRouter, Query
 from typing import List
 
 from app.services.student_profile_service import (
-    get_tasa_retencion,
     build_dashboard,
     get_kpi_metrics,
-    get_gender_distribution,
-    get_career_distribution,
+    get_job_readiness_distribution,
     get_district_distribution,
     get_semester_distribution,
     get_age_distribution,
@@ -21,8 +19,7 @@ from app.services.student_profile_service import (
 from app.schemas.student_profile_schema import (
     DashboardPerfilEstudiante,
     KPIMetricsSchema,
-    DistribucionGeneroSchema,
-    DistribucionCarreraSchema,
+    PreparacionLaboralSchema,
     DistribucionDistritoSchema,
     DistribucionSemestreSchema,
     DistribucionEdadSchema,
@@ -39,13 +36,12 @@ def get_perfil_dashboard():
     
     Incluye:
     - KPI principales (total estudiantes, edad promedio, etc.)
-    - Distribución por género
-    - Distribución por carrera y género
+    - Distribución por preparación laboral
     - Distribución por distrito
     - Distribución por semestre
     - Distribución por rangos de edad
     - Riesgo académico por semestre
-    - Insights y recomendaciones
+    - Insights descriptivos
     """
     return build_dashboard()
 
@@ -56,16 +52,10 @@ def get_kpi():
     return get_kpi_metrics()
 
 
-@router.get("/genero", response_model=DistribucionGeneroSchema)
-def get_genero():
-    """Distribución por género"""
-    return get_gender_distribution()
-
-
-@router.get("/carreras", response_model=List[DistribucionCarreraSchema])
-def get_carreras():
-    """Distribución por carrera y género"""
-    return get_career_distribution()
+@router.get("/job-readiness-distribution", response_model=List[PreparacionLaboralSchema])
+def get_job_readiness_distribution_endpoint():
+    """Distribución por preparación laboral"""
+    return get_job_readiness_distribution()
 
 
 @router.get("/distritos", response_model=List[DistribucionDistritoSchema])
@@ -96,10 +86,5 @@ def get_riesgo():
 
 @router.get("/insights", response_model=str)
 def get_insights_endpoint():
-    """Insights y recomendaciones del análisis"""
+    """Insights descriptivos del análisis"""
     return get_insights()
-@router.get("/tasa-retencion")
-def get_tasa_retencion_endpoint():
-    """Tasa de retención académica"""
-    from app.services.student_profile_service import get_tasa_retencion
-    return get_tasa_retencion()

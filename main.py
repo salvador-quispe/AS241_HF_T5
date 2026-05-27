@@ -37,8 +37,7 @@ def root():
         "endpoints": {
             "dashboard": "/api/perfil-estudiante/dashboard",
             "kpi": "/api/perfil-estudiante/kpi",
-            "genero": "/api/perfil-estudiante/genero",
-            "carreras": "/api/perfil-estudiante/carreras",
+            "preparacion_laboral": "/api/perfil-estudiante/job-readiness-distribution",
             "distritos": "/api/perfil-estudiante/distritos",
             "semestres": "/api/perfil-estudiante/semestres",
             "edades": "/api/perfil-estudiante/edades",

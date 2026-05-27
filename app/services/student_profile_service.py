@@ -8,8 +8,7 @@ import logging
 from app.schemas.student_profile_schema import (
     DashboardPerfilEstudiante,
     KPIMetricsSchema,
-    DistribucionGeneroSchema,
-    DistribucionCarreraSchema,
+    PreparacionLaboralSchema,
     DistribucionDistritoSchema,
     DistribucionSemestreSchema,
     DistribucionEdadSchema,
@@ -30,8 +29,9 @@ def build_dashboard() -> DashboardPerfilEstudiante:
     
     return DashboardPerfilEstudiante(
         indicadores_kpi=KPIMetricsSchema(**data['indicadores_kpi']),
-        distribucion_genero=DistribucionGeneroSchema(**data['distribucion_genero']),
-        distribucion_carreras=[DistribucionCarreraSchema(**c) for c in data['distribucion_carreras']],
+        job_readiness_distribution=[
+            PreparacionLaboralSchema(**item) for item in data['job_readiness_distribution']
+        ],
         distribucion_distritos=[DistribucionDistritoSchema(**d) for d in data['distribucion_distritos']],
         distribucion_semestres=[DistribucionSemestreSchema(**s) for s in data['distribucion_semestres']],
         distribucion_edades=[DistribucionEdadSchema(**a) for a in data['distribucion_edades']],
@@ -46,16 +46,10 @@ def get_kpi_metrics() -> KPIMetricsSchema:
     return KPIMetricsSchema(**etl.get_kpi_metrics())
 
 
-def get_gender_distribution() -> DistribucionGeneroSchema:
-    """Get gender distribution"""
+def get_job_readiness_distribution() -> list:
+    """Get job readiness distribution"""
     etl = StudentProfileETL()
-    return DistribucionGeneroSchema(**etl.get_gender_distribution())
-
-
-def get_career_distribution() -> list:
-    """Get career distribution"""
-    etl = StudentProfileETL()
-    return [DistribucionCarreraSchema(**c) for c in etl.get_career_distribution()]
+    return [PreparacionLaboralSchema(**item) for item in etl.get_job_readiness_distribution()]
 
 
 def get_district_distribution(top_n: int = 6) -> list:
@@ -86,13 +80,3 @@ def get_insights() -> str:
     """Get analysis insights"""
     etl = StudentProfileETL()
     return etl.generate_insights()
-def get_tasa_retencion():
-    """
-    Tasa de retención académica
-    """
-    return {
-        "tasa_actual": 92.0,
-        "meta_institucional": 95.0,
-        "cumple_meta": False,
-        "diferencia": -3.0
-    }

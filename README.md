@@ -49,14 +49,12 @@ CACHE_TTL_SECONDS=30
 |--------|-----|-------------|
 | GET | `/api/perfil-estudiante/dashboard` | Dashboard completo |
 | GET | `/api/perfil-estudiante/kpi` | Indicadores KPI |
-| GET | `/api/perfil-estudiante/genero` | Distribución por género |
-| GET | `/api/perfil-estudiante/carreras` | Distribución por carrera |
+| GET | `/api/perfil-estudiante/job-readiness-distribution` | Distribución por preparación laboral |
 | GET | `/api/perfil-estudiante/semestres` | Distribución por semestre |
 | GET | `/api/perfil-estudiante/edades` | Distribución por rangos de edad |
 | GET | `/api/perfil-estudiante/distritos` | Distribución por distrito |
 | GET | `/api/perfil-estudiante/riesgo` | Riesgo académico por semestre |
-| GET | `/api/perfil-estudiante/insights` | Insights y recomendaciones |
-| GET | `/api/perfil-estudiante/tasa-retencion` | Tasa de retención |
+| GET | `/api/perfil-estudiante/insights` | Insights descriptivos |
 
 > Base URL local: `http://127.0.0.1:8000`
 

@@ -72,7 +72,7 @@ _cache = {"df": None, "ts": 0.0}
 def _fetch_and_transform() -> pd.DataFrame:
     """Fetch data from Google Sheets and apply transformations"""
     logger.info("Fetching sheet from %s", SHEET_URL)
-    df = pd.read_csv(SHEET_URL, header=None, skiprows=1)
+    df = pd.read_csv(SHEET_URL, header=None, skiprows=1, encoding="utf-8")
     logger.info("Fetched %d rows, %d columns", len(df), len(df.columns))
 
     ncols = len(df.columns)

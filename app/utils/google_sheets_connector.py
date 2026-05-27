@@ -42,8 +42,11 @@ class GoogleSheetsConnector:
         """
         try:
             logger.info("🔄 Connecting to Google Sheets...")
-            # Forzar encoding UTF-8-SIG para manejar tildes y ñ correctamente
-            self.raw_data = pd.read_csv(self.url_csv, encoding='utf-8-sig')
+            # Forzar UTF-8 para mantener los textos de la encuesta correctamente codificados.
+            self.raw_data = pd.read_csv(
+                self.url_csv,
+                encoding='utf-8'
+            )
             self.last_update = datetime.now()
             logger.info(f"✅ Connection successful! {len(self.raw_data)} records loaded")
             return True

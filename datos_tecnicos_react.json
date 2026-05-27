@@ -1,0 +1,44 @@
+{
+    "resumen_global": {
+        "total_encuestados": 68,
+        "total_mapeados": 35,
+        "porcentaje_impacto_global": 51.5
+    },
+    "subcategorias_tecnicas": [
+        {
+            "categoria": "Programación y Código General",
+            "votos": 14,
+            "porcentaje_del_subtotal": 40.0
+        },
+        {
+            "categoria": "Lógica y Algoritmia (Seudocódigo/Flujograma)",
+            "votos": 6,
+            "porcentaje_del_subtotal": 17.1
+        },
+        {
+            "categoria": "Bases de Datos y Análisis (SQL/Sheets)",
+            "votos": 4,
+            "porcentaje_del_subtotal": 11.4
+        },
+        {
+            "categoria": "Refuerzo General y Práctica Constante",
+            "votos": 4,
+            "porcentaje_del_subtotal": 11.4
+        },
+        {
+            "categoria": "Arquitectura, Backend y DevOps (Docker)",
+            "votos": 3,
+            "porcentaje_del_subtotal": 8.6
+        },
+        {
+            "categoria": "Desarrollo Frontend (HTML/CSS)",
+            "votos": 2,
+            "porcentaje_del_subtotal": 5.7
+        },
+        {
+            "categoria": "Infraestructura, Redes y AWS",
+            "votos": 2,
+            "porcentaje_del_subtotal": 5.7
+        }
+    ]
+}

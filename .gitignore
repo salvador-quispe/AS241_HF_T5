@@ -4,3 +4,4 @@ venv/
 backend.log
 __pycache__/
 *.pyc
+outputs/

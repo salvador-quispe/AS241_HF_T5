@@ -70,6 +70,44 @@ http://127.0.0.1:8000/api/perfil-estudiante/kpi
 
 ---
 
+## Proceso BI - Perfil del Estudiante
+
+El módulo de perfil del estudiante resume los datos obtenidos desde la encuesta de Google Forms publicada en Google Sheets.
+
+### 1. Extracción de datos
+
+La API lee la hoja publicada en formato CSV usando la variable `GOOGLE_SHEET_URL` definida en `.env`.
+
+```python
+df = pd.read_csv(SHEET_URL, header=None, skiprows=1, encoding="utf-8")
+```
+
+### 2. Limpieza y preparación
+
+Los nombres de columnas se normalizan para trabajar con campos más simples como `edad`, `distrito`, `semestre` y `preparado_ingresar_mercado_laboral`.
+
+Luego se convierten a valores numéricos las columnas necesarias para calcular promedios, rangos y niveles de preparación.
+
+### 3. Resúmenes generados con Python
+
+El archivo `app/etl/student_profile_etl.py` contiene las consultas principales:
+
+| Resumen | Interpretación |
+|---------|----------------|
+| KPI generales | Total de estudiantes, edad promedio, edad mínima, edad máxima, riesgo y logro institucional |
+| Preparación laboral | Clasifica respuestas en baja, media y alta preparación |
+| Distribución por distrito | Identifica los distritos con mayor participación |
+| Distribución por semestre | Muestra la concentración de estudiantes por ciclo académico |
+| Distribución por edad | Agrupa estudiantes por rangos de edad |
+| Riesgo por semestre | Detecta estudiantes con baja preparación laboral por semestre |
+| Insights | Genera una interpretación breve de los resultados principales |
+
+### 4. Interpretación actual de resultados
+
+Con los datos cargados desde la encuesta, el perfil del estudiante muestra una población mayoritaria de primeros y quintos semestres. El distrito con mayor concentración es San Vicente de Cañete. Además, una parte de los estudiantes reporta baja preparación para ingresar al mercado laboral, lo que permite identificar un grupo de riesgo para acciones de refuerzo académico o laboral.
+
+---
+
 ## Detener la API
 
 Presiona `Ctrl + C` en la terminal.

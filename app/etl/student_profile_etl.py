@@ -4,7 +4,6 @@ Data transformations and queries for student profile BI dashboard
 """
 
 import pandas as pd
-import numpy as np
 from typing import Dict, List, Any, Optional
 import logging
 
@@ -25,6 +24,18 @@ class StudentProfileETL:
         self.df = df.copy() if df is not None else get_data()
         self.total_students = len(self.df)
         logger.info(f"ETL initialized with {self.total_students} students")
+
+    @staticmethod
+    def _format_semester(value: Any) -> str:
+        """Return a consistent semester label for API responses."""
+        text = str(value).strip()
+        if "semestre" in text.lower():
+            return text
+
+        if text.endswith(".0"):
+            text = text[:-2]
+
+        return f"{text}° Semestre"
     
     # ============================================
     # 1. KPI METRICS (Summary Cards)
@@ -49,7 +60,13 @@ class StudentProfileETL:
             risk_count = 0
         
         if 'institucion_preparo_adecuadamente' in self.df.columns:
-            satisfied = len(self.df[self.df['institucion_preparo_adecuadamente'] == 'Si'])
+            institution_values = (
+                self.df['institucion_preparo_adecuadamente']
+                .astype(str)
+                .str.strip()
+                .str.lower()
+            )
+            satisfied = len(self.df[institution_values.isin(['si', 'sí'])])
             achievement = round((satisfied / self.total_students) * 100, 1)
         else:
             achievement = 0
@@ -157,7 +174,7 @@ class StudentProfileETL:
         results = []
         for semester, count in semester_counts.items():
             results.append({
-                'semestre': str(semester),
+                'semestre': self._format_semester(semester),
                 'cantidad_estudiantes': int(count),
                 'porcentaje': round((count / total) * 100, 1)
             })
@@ -215,7 +232,7 @@ class StudentProfileETL:
             if 'preparado_ingresar_mercado_laboral' in semester_df.columns:
                 risk_count = len(semester_df[semester_df['preparado_ingresar_mercado_laboral'] <= 2])
                 risk_data.append({
-                    'semestre': str(semester),
+                    'semestre': self._format_semester(semester),
                     'total_estudiantes': len(semester_df),
                     'estudiantes_riesgo': risk_count,
                     'porcentaje_riesgo': round((risk_count / len(semester_df)) * 100, 1) if len(semester_df) > 0 else 0
@@ -269,7 +286,10 @@ class StudentProfileETL:
         semester_data = self.get_semester_distribution()
         if len(semester_data) > 0:
             most_populated = max(semester_data, key=lambda x: x['cantidad_estudiantes'])
-            insights.append(f"El {most_populated['semestre']}° semestre concentra el {most_populated['porcentaje']}% de estudiantes. ")
+            insights.append(
+                f"El {most_populated['semestre']} concentra el "
+                f"{most_populated['porcentaje']}% de estudiantes."
+            )
         
         # Risk analysis
         kpi = self.get_kpi_metrics()

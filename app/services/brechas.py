@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import io
+import csv
 from app.schemas.brechas import DashboardBrechas
 
 FREQ_ORDER = ["Nunca", "A veces", "Frecuentemente", "Siempre"]
@@ -195,3 +197,82 @@ def build_dashboard(df: pd.DataFrame) -> DashboardBrechas:
         comparacion_semestre={"items": comp_sem},
         comparacion_edad={"items": comp_edad},
     )
+
+
+def build_looker_csv(df: pd.DataFrame) -> str:
+    dashboard = build_dashboard(df)
+    data = dashboard.model_dump()
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["indicador", "categoria", "etiqueta", "valor"])
+
+    def write(key, cat, label, val):
+        writer.writerow([key, cat, label, val])
+
+    # 1-2. Conocimientos técnicos y dominio digital
+    for key in ["nivel_conocimientos_tecnicos", "nivel_dominio_digital"]:
+        d = data[key]
+        write(key, "promedio", "", d["promedio"])
+        for k, v in d["distribucion"].items():
+            write(key, "distribucion", k, v)
+
+    # 3. Frecuencia uso digital
+    for k, v in data["frecuencia_uso_digital"]["frecuencia"].items():
+        write("frecuencia_uso_digital", "frecuencia", k, v)
+
+    # 4. Formación digital
+    f = data["formacion_digital"]
+    write("formacion_digital", "conteo", "con_formacion", f["con_formacion"])
+    write("formacion_digital", "conteo", "sin_formacion", f["sin_formacion"])
+    write("formacion_digital", "porcentaje", "porcentaje_con_formacion", f["porcentaje_con_formacion"])
+
+    # 5. Herramientas más usadas
+    for item in data["herramientas_mas_usadas"]["items"]:
+        write("herramientas_mas_usadas", item["herramienta"], "conteo", item["conteo"])
+
+    # 6. Preparación laboral
+    p = data["preparacion_laboral"]
+    write("preparacion_laboral", "promedio", "", p["promedio"])
+    for k, v in p["distribucion"].items():
+        write("preparacion_laboral", "distribucion", k, v)
+
+    # 7. Habilidades a mejorar
+    for item in data["habilidades_mejorar"]["items"]:
+        write("habilidades_mejorar", item["habilidad"], "conteo", item["conteo"])
+
+    # 8-9. Brecha técnica y digital
+    for key in ["brecha_tecnica_promedio", "brecha_digital_promedio"]:
+        b = data[key]
+        write(key, "promedio", "", b["promedio"])
+        write(key, "maximo", "", b["maximo"])
+        write(key, "minimo", "", b["minimo"])
+
+    # 10. Brecha habilidades blandas
+    for k, v in data["brecha_habilidades_blandas"].items():
+        write("brecha_habilidades_blandas", k, "", v)
+
+    # 11-12. Sin formación / bajo dominio
+    for key in ["estudiantes_sin_formacion_digital", "estudiantes_bajo_dominio_tecnologico"]:
+        s = data[key]
+        write(key, "cantidad", "", s["cantidad"])
+        write(key, "porcentaje", "", s["porcentaje"])
+
+    # 13. Uso herramientas carrera
+    u = data["uso_herramientas_carrera"]
+    write("uso_herramientas_carrera", "porcentaje_uso_frecuente", "", u["porcentaje_uso_frecuente"])
+    for k, v in u["distribucion"].items():
+        write("uso_herramientas_carrera", "distribucion", k, v)
+
+    # 14. Comparación carrera
+    for item in data["comparacion_carrera"]["items"]:
+        write("comparacion_carrera", item["carrera"], "promedio", item["promedio"])
+
+    # 15. Comparación semestre
+    for item in data["comparacion_semestre"]["items"]:
+        write("comparacion_semestre", item["semestre"], "promedio", item["promedio"])
+
+    # 16. Comparación edad
+    for item in data["comparacion_edad"]["items"]:
+        write("comparacion_edad", item["grupo_edad"], "promedio", item["promedio"])
+
+    return output.getvalue()

@@ -10,12 +10,14 @@ from app.services.habilidades_tecnicas_service import (
     build_dashboard,
     get_kpi_metrics,
     get_matriz_operacional,
+    get_nivel_tecnico,
     invalidate_cache,
 )
 from app.schemas.habilidades_tecnicas_schema import (
     DashboardHabilidadesTecnicasSchema,
     MatrizOperacionalSchema,
     KPITecnicasSchema,
+    NivelTecnicoSchema,
 )
 
 router = APIRouter(prefix="/api/habilidades-tecnicas", tags=["Habilidades Técnicas"])
@@ -68,3 +70,19 @@ def reload_data():
     invalidate_cache()
     build_dashboard(force_refresh=True)
     return {"message": "Caché de Habilidades Técnicas invalidada y recargada con éxito"}
+
+
+@router.get("/nivel", response_model=NivelTecnicoSchema)
+def get_nivel(
+    force_refresh: bool = Query(default=False, description="Forzar recarga desde Google Sheets")
+):
+    """
+    Obtener métricas de nivel técnico y preparación laboral.
+
+    - **conocimiento_tecnico_promedio**: promedio Likert escalado a 0–20
+    - **porcentaje_aplicacion_real**: promedio Likert escalado a 0–100%
+    """
+    try:
+        return get_nivel_tecnico(force_refresh=force_refresh)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

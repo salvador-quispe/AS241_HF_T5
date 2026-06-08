@@ -34,6 +34,25 @@ class ResumenGlobalTecnico:
 
 
 @dataclass
+class NivelTecnicoMetrics:
+    """Metrics for technical knowledge level and job readiness"""
+    conocimiento_tecnico_promedio: float   # Likert mean × 20/5  (scale 0–20)
+    porcentaje_aplicacion_real: float      # Likert mean × 100/5 (scale 0–100%)
+    promedio_conocimiento_raw: float       # Raw Likert mean 1–5
+    promedio_aplicacion_raw: float         # Raw Likert mean 1–5
+    total_respondentes: int
+
+    def to_dict(self) -> dict:
+        return {
+            "conocimiento_tecnico_promedio": round(self.conocimiento_tecnico_promedio, 2),
+            "porcentaje_aplicacion_real": round(self.porcentaje_aplicacion_real, 2),
+            "promedio_conocimiento_raw": round(self.promedio_conocimiento_raw, 2),
+            "promedio_aplicacion_raw": round(self.promedio_aplicacion_raw, 2),
+            "total_respondentes": self.total_respondentes,
+        }
+
+
+@dataclass
 class SubcategoriaTecnica:
     """Category breakdown for a technical skill"""
     categoria: str
@@ -229,3 +248,57 @@ class HabilidadesTecnicasETL:
             )
 
         return " ".join(insights)
+
+    # ============================================
+    # 6. NIVEL TÉCNICO Y APLICACIÓN REAL
+    # ============================================
+
+    def get_nivel_tecnico(self) -> NivelTecnicoMetrics:
+        """
+        Calculate technical knowledge level and job readiness metrics.
+
+        Column 8  (0-based): ¿Cómo calificas tu nivel de conocimientos técnicos en tu carrera?
+                              → Likert 1-5 → score sobre 20 (× 20/5)
+        Column 9  (0-based): ¿Qué tan preparado te sientes para aplicar tus conocimientos?
+                              → Likert 1-5 → porcentaje sobre 100 (× 100/5)
+        """
+        col_conocimiento = None
+        col_aplicacion = None
+
+        try:
+            col_conocimiento = pd.to_numeric(self.df.iloc[:, 8], errors="coerce")
+        except IndexError:
+            logger.error("Column 8 (conocimiento técnico) not found in DataFrame")
+
+        try:
+            col_aplicacion = pd.to_numeric(self.df.iloc[:, 9], errors="coerce")
+        except IndexError:
+            logger.error("Column 9 (aplicación real) not found in DataFrame")
+
+        # Conocimiento técnico: mean Likert × 20/5 → scale 0–20
+        if col_conocimiento is not None and col_conocimiento.count() > 0:
+            mean_con = float(col_conocimiento.mean())
+            conocimiento_promedio = round(mean_con * 20 / 5, 2)
+            total = int(col_conocimiento.count())
+        else:
+            mean_con = 0.0
+            conocimiento_promedio = 0.0
+            total = 0
+
+        # Aplicación real: mean Likert × 100/5 → scale 0–100%
+        if col_aplicacion is not None and col_aplicacion.count() > 0:
+            mean_apl = float(col_aplicacion.mean())
+            porcentaje_aplicacion = round(mean_apl * 100 / 5, 2)
+            if total == 0:
+                total = int(col_aplicacion.count())
+        else:
+            mean_apl = 0.0
+            porcentaje_aplicacion = 0.0
+
+        return NivelTecnicoMetrics(
+            conocimiento_tecnico_promedio=conocimiento_promedio,
+            porcentaje_aplicacion_real=porcentaje_aplicacion,
+            promedio_conocimiento_raw=round(mean_con, 4),
+            promedio_aplicacion_raw=round(mean_apl, 4),
+            total_respondentes=total,
+        )

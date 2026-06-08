@@ -21,6 +21,7 @@ try:
         build_dashboard as build_dashboard_tecnicas,
         get_kpi_metrics as get_kpi_tecnicas,
         get_matriz_operacional,
+        get_nivel_tecnico,
         invalidate_cache as invalidate_cache_tecnicas,
     )
     _tecnicas_available = True
@@ -244,6 +245,7 @@ def show_list():
         cmds_t = [
             ("cli.py tecnicas", "Dashboard completo tecnicas"),
             ("cli.py tecnicas-kpi", "KPI tecnicas"),
+            ("cli.py tecnicas-nivel", "Nivel tecnico"),
             ("cli.py tecnicas-matriz", "Matriz Operacional"),
             ("cli.py tecnicas-refresh", "Recargar datos tecnicas"),
         ]
@@ -293,6 +295,11 @@ def main():
     elif cmd == "tecnicas-kpi":
         if _tecnicas_available:
             show_kpi_tecnicas()
+        else:
+            _tecnicas_not_available()
+    elif cmd == "tecnicas-nivel":
+        if _tecnicas_available:
+            show_nivel_tecnico()
         else:
             _tecnicas_not_available()
     elif cmd == "tecnicas-matriz":
@@ -351,6 +358,17 @@ def show_matriz():
         pct = d.get('porcentaje_del_subtotal', 0)
         b = bar_pct(pct, ancho=30)
         print(f"  ║  {cat:42s} {b:32s} {pct:<5.1f}% ({votos} votos) ║")
+    box_footer()
+
+
+def show_nivel_tecnico():
+    data = get_nivel_tecnico()
+    d = data.model_dump() if hasattr(data, 'model_dump') else data
+    print()
+    box_header("NIVEL TECNICO - CONOCIMIENTO Y APLICACION")
+    for k, v in d.items():
+        k_show = k.replace("_", " ").title()
+        print(f"  ║  {k_show:40s} {str(v):<32s} ║")
     box_footer()
 
 

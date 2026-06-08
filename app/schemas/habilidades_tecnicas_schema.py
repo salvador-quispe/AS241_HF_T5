@@ -50,3 +50,14 @@ class KPITecnicasSchema(BaseModel):
     total_mapeados: int
     porcentaje_impacto_global: float
     categoria_lider: str
+
+
+class NivelTecnicoSchema(BaseModel):
+    """Technical knowledge level and job readiness metrics schema"""
+    model_config = ConfigDict(from_attributes=True)
+
+    conocimiento_tecnico_promedio: float   # scale 0–20
+    porcentaje_aplicacion_real: float      # scale 0–100
+    promedio_conocimiento_raw: float       # Likert 1–5
+    promedio_aplicacion_raw: float         # Likert 1–5
+    total_respondentes: int

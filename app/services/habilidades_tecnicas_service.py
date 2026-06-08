@@ -15,6 +15,7 @@ from app.schemas.habilidades_tecnicas_schema import (
     SubcategoriaTecnicaSchema,
     MatrizOperacionalSchema,
     KPITecnicasSchema,
+    NivelTecnicoSchema,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -117,3 +118,26 @@ def invalidate_cache() -> None:
         repository.invalidate_cache()
     except Exception as e:
         logger.error(f"Error invalidating cache: {e}")
+
+
+def get_nivel_tecnico(force_refresh: bool = False) -> NivelTecnicoSchema:
+    """Get technical knowledge level (0-20 scale) and job readiness percentage (0-100%)."""
+    etl = repository.load_data(force_refresh)
+
+    if etl is None:
+        return NivelTecnicoSchema(
+            conocimiento_tecnico_promedio=0.0,
+            porcentaje_aplicacion_real=0.0,
+            promedio_conocimiento_raw=0.0,
+            promedio_aplicacion_raw=0.0,
+            total_respondentes=0,
+        )
+
+    metrics = etl.get_nivel_tecnico()
+    return NivelTecnicoSchema(
+        conocimiento_tecnico_promedio=metrics.conocimiento_tecnico_promedio,
+        porcentaje_aplicacion_real=metrics.porcentaje_aplicacion_real,
+        promedio_conocimiento_raw=metrics.promedio_conocimiento_raw,
+        promedio_aplicacion_raw=metrics.promedio_aplicacion_raw,
+        total_respondentes=metrics.total_respondentes,
+    )

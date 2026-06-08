@@ -1,7 +1,6 @@
 from fastapi import APIRouter
-from fastapi.responses import PlainTextResponse
 from app.config.database import get_data
-from app.services.brechas import build_dashboard, build_looker_csv
+from app.services.brechas import build_dashboard, build_looker_flat
 from app.schemas.brechas import DashboardBrechas
 
 router = APIRouter(prefix="/api/brechas", tags=["Brechas"])
@@ -13,7 +12,7 @@ def get_brechas_dashboard():
     return build_dashboard(df)
 
 
-@router.get("/looker", response_class=PlainTextResponse)
+@router.get("/looker")
 def get_brechas_looker():
     df = get_data()
-    return build_looker_csv(df)
+    return build_looker_flat(df)

@@ -199,11 +199,83 @@ def build_dashboard(df: pd.DataFrame) -> DashboardBrechas:
     )
 
 
+def build_looker_flat(df: pd.DataFrame) -> list:
+    dashboard = build_dashboard(df)
+    d = dashboard.model_dump()
+    row = {}
+
+    row["conocimiento_tecnico_promedio"] = d["nivel_conocimientos_tecnicos"]["promedio"]
+    row["dominio_digital_promedio"] = d["nivel_dominio_digital"]["promedio"]
+    row["formacion_digital_porcentaje"] = d["formacion_digital"]["porcentaje_con_formacion"]
+    row["brecha_tecnica_promedio"] = d["brecha_tecnica_promedio"]["promedio"]
+    row["brecha_digital_promedio"] = d["brecha_digital_promedio"]["promedio"]
+    row["uso_herramientas_frecuente_porcentaje"] = d["uso_herramientas_carrera"]["porcentaje_uso_frecuente"]
+
+    for k, v in d["nivel_conocimientos_tecnicos"]["distribucion"].items():
+        row[f"conocimiento_tecnico_n{k}"] = v
+    for k, v in d["nivel_dominio_digital"]["distribucion"].items():
+        row[f"dominio_digital_n{k}"] = v
+
+    row["preparacion_laboral_promedio"] = d["preparacion_laboral"]["promedio"]
+    for k, v in d["preparacion_laboral"]["distribucion"].items():
+        row[f"preparacion_laboral_n{k}"] = v
+
+    row["con_formacion"] = d["formacion_digital"]["con_formacion"]
+    row["sin_formacion"] = d["formacion_digital"]["sin_formacion"]
+    row["sin_formacion_porcentaje"] = d["estudiantes_sin_formacion_digital"]["porcentaje"]
+
+    row["bajo_dominio_cantidad"] = d["estudiantes_bajo_dominio_tecnologico"]["cantidad"]
+    row["bajo_dominio_porcentaje"] = d["estudiantes_bajo_dominio_tecnologico"]["porcentaje"]
+
+    for item in d["habilidades_mejorar"]["items"]:
+        key = "habilidad_" + item["habilidad"].replace(" ", "_").replace("í", "i").replace("ó", "o").replace("é", "e")
+        row[key] = item["conteo"]
+
+    tool_map = {}
+    for item in d["herramientas_mas_usadas"]["items"]:
+        h = item["herramienta"].lower()
+        if "word" in h:
+            tool_map["herramienta_word"] = item["conteo"]
+        elif "vscode" in h or "visual studio" in h or "editor" in h:
+            tool_map["herramienta_vscode"] = item["conteo"]
+        elif "intellij" in h:
+            tool_map["herramienta_intellij"] = item["conteo"]
+        elif "chatgpt" in h or "ia" in h:
+            tool_map["herramienta_chatgpt"] = item["conteo"]
+        elif "gemini" in h:
+            tool_map["herramienta_gemini"] = item["conteo"]
+        elif "excel" in h or "sheets" in h:
+            tool_map["herramienta_excel"] = item["conteo"]
+        elif "git" in h:
+            tool_map["herramienta_git"] = item["conteo"]
+        elif "mysql" in h or "base" in h:
+            tool_map["herramienta_mysql"] = item["conteo"]
+        elif "postgres" in h:
+            tool_map["herramienta_postgresql"] = item["conteo"]
+    row.update(tool_map)
+
+    row["frecuencia_nunca"] = d["frecuencia_uso_digital"]["frecuencia"].get("Nunca", 0)
+    row["frecuencia_aveces"] = d["frecuencia_uso_digital"]["frecuencia"].get("A veces", 0)
+    row["frecuencia_frecuentemente"] = d["frecuencia_uso_digital"]["frecuencia"].get("Frecuentemente", 0)
+    row["frecuencia_siempre"] = d["frecuencia_uso_digital"]["frecuencia"].get("Siempre", 0)
+
+    for item in d["comparacion_semestre"]["items"]:
+        sem = str(item["semestre"])[0]
+        row[f"semestre_{sem}"] = item["promedio"]
+
+    for item in d["comparacion_edad"]["items"]:
+        edad = item["grupo_edad"].replace("-", "_").replace("+", "_mas")
+        row[f"edad_{edad}"] = item["promedio"]
+
+    return [row]
+
+
+
 def build_looker_csv(df: pd.DataFrame) -> str:
     dashboard = build_dashboard(df)
     data = dashboard.model_dump()
     output = io.StringIO()
-    writer = csv.writer(output)
+    writer = csv.writer(output, quoting=csv.QUOTE_ALL)
     writer.writerow(["indicador", "categoria", "etiqueta", "valor"])
 
     def write(key, cat, label, val):
@@ -276,3 +348,63 @@ def build_looker_csv(df: pd.DataFrame) -> str:
         write("comparacion_edad", item["grupo_edad"], "promedio", item["promedio"])
 
     return output.getvalue()
+
+
+def build_looker_json(df: pd.DataFrame) -> list:
+    dashboard = build_dashboard(df)
+    d = dashboard.model_dump()
+    rows = []
+
+    def add(seccion, nombre, valor=None, cantidad=None, porcentaje=None):
+        row = {"seccion": seccion, "nombre": nombre}
+        if valor is not None:
+            row["valor"] = valor
+        if cantidad is not None:
+            row["cantidad"] = cantidad
+        if porcentaje is not None:
+            row["porcentaje"] = porcentaje
+        rows.append(row)
+
+    add("kpi", "Conocimiento técnico", d["nivel_conocimientos_tecnicos"]["promedio"])
+    add("kpi", "Dominio digital", d["nivel_dominio_digital"]["promedio"])
+    add("kpi", "Formación digital", d["formacion_digital"]["porcentaje_con_formacion"])
+    add("kpi", "Brecha técnica", d["brecha_tecnica_promedio"]["promedio"])
+    add("kpi", "Brecha digital", d["brecha_digital_promedio"]["promedio"])
+    add("kpi", "Uso frecuente", d["uso_herramientas_carrera"]["porcentaje_uso_frecuente"])
+
+    for k, v in d["nivel_conocimientos_tecnicos"]["distribucion"].items():
+        add("distribucion_tecnica", f"N{k}", v)
+    for k, v in d["nivel_dominio_digital"]["distribucion"].items():
+        add("distribucion_digital", f"N{k}", v)
+
+    add("formacion", "Con formación", d["formacion_digital"]["con_formacion"])
+    add("formacion", "Sin formación", d["formacion_digital"]["sin_formacion"])
+
+    add("alerta", "Sin formación digital",
+        cantidad=d["estudiantes_sin_formacion_digital"]["cantidad"],
+        porcentaje=d["estudiantes_sin_formacion_digital"]["porcentaje"])
+    add("alerta", "Bajo dominio tecnológico",
+        cantidad=d["estudiantes_bajo_dominio_tecnologico"]["cantidad"],
+        porcentaje=d["estudiantes_bajo_dominio_tecnologico"]["porcentaje"])
+
+    add("preparacion_laboral", "Promedio", d["preparacion_laboral"]["promedio"])
+    for k, v in d["preparacion_laboral"]["distribucion"].items():
+        add("preparacion_laboral_distribucion", f"N{k}", v)
+
+    for item in d["habilidades_mejorar"]["items"]:
+        add("habilidades", item["habilidad"], item["conteo"])
+
+    for item in d["herramientas_mas_usadas"]["items"]:
+        add("herramientas", item["herramienta"], item["conteo"])
+
+    for k, v in d["frecuencia_uso_digital"]["frecuencia"].items():
+        add("frecuencia", k, v)
+
+    for item in d["comparacion_carrera"]["items"]:
+        add("comparacion_carrera", item["carrera"], item["promedio"])
+    for item in d["comparacion_semestre"]["items"]:
+        add("comparacion_semestre", str(item["semestre"]), item["promedio"])
+    for item in d["comparacion_edad"]["items"]:
+        add("comparacion_edad", item["grupo_edad"], item["promedio"])
+
+    return rows

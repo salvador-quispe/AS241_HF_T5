@@ -71,6 +71,9 @@ def _wrap_text(text, width):
         lines.append(cur)
     return lines
 
+def trunc(text, width):
+    return text if len(text) <= width else text[:width-1] + "…"
+
 def content_line(text):
     pad = CW - len(text)
     return f"  │  {text}{' ' * pad}  │"
@@ -127,7 +130,7 @@ def show_dashboard():
         d = item.model_dump()
         b = bar(d['promedio'], ancho=22)
         l = level(d['promedio'])
-        print(content_line(f"{d['habilidad']:<28s} {b}", f"{d['promedio']:<5.2f}  {l}"))
+        print(content_line(f"{trunc(d['habilidad'], 28):28s} {b}", f"{d['promedio']:<5.2f}  {l}"))
 
     print(f"  ├{'─' * IW}┤")
     print(content_line("H A B I L I D A D E S   A   M E J O R A R"))
@@ -135,7 +138,7 @@ def show_dashboard():
     for item in mejorar[:5]:
         d = item.model_dump()
         b = bar_pct(d['porcentaje'], ancho=20)
-        print(content_line(f"{d['categoria']:<34s} {b}", f"{d['porcentaje']:<5.1f}%  ({d['cantidad_estudiantes']})"))
+        print(content_line(f"{trunc(d['categoria'], 34):34s} {b:20s}  {d['porcentaje']:<5.1f}%  ({d['cantidad_estudiantes']})"))
 
     print(f"  ├{'─' * IW}┤")
     print(content_line("SATISFACCION ─ INSTITUCION"))
@@ -184,7 +187,7 @@ def show_promedios():
     for item in data:
         d = item.model_dump()
         b = bar(d['promedio'], ancho=22)
-        print(content_line(f"{d['habilidad']:<28s} {b:<22s} {d['promedio']:<5.2f}  {level(d['promedio']):<5s}"))
+        print(content_line(f"{trunc(d['habilidad'], 28):28s} {b:22s} {d['promedio']:<5.2f}  {level(d['promedio']):<5s}"))
     box_footer()
 
 
@@ -197,7 +200,7 @@ def show_mejorar():
     for item in data:
         d = item.model_dump()
         b = bar_pct(d['porcentaje'], ancho=20)
-        print(content_line(f"{d['categoria']:<34s} {b:<20s} {d['porcentaje']:<5.1f}  {d['cantidad_estudiantes']:<3d}"))
+        print(content_line(f"{trunc(d['categoria'], 34):34s} {b:20s} {d['porcentaje']:<5.1f}  {d['cantidad_estudiantes']:<3d}"))
     box_footer()
 
 

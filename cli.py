@@ -328,11 +328,9 @@ def show_dashboard_tecnicas():
     box_header("HABILIDADES TECNICAS")
     if hasattr(data, 'model_dump'):
         data = data.model_dump()
-    kpi_data = get_kpi_tecnicas().model_dump()
-    print(f"  ║  {'Estudiantes':30s} {data.get('total_estudiantes', kpi_data.get('total_estudiantes', 'N/A')):<42s} ║")
-    print(f"  ║  {'Conocimiento Tecnico Prom':30s} {kpi_data.get('conocimiento_tecnico_promedio', 'N/A'):<6.2f}         ║")
-    if _tecnicas_available:
-        print(f"  ║  {'Porcentaje Aplicacion Real':30s} {kpi_data.get('porcentaje_aplicacion_real', 'N/A'):<6.2f} {'%':36s} ║")
+    for k, v in data.items():
+        k_show = k.replace("_", " ").title()
+        print(f"  ║  {k_show:35s} {str(v):<37s} ║")
     box_footer()
 
 

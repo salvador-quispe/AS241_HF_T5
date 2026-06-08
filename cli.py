@@ -28,7 +28,7 @@ try:
 except ImportError:
     _tecnicas_available = False
 
-W = 76
+W = 86
 IW = W - 4
 
 def bar(valor, max_val=5, ancho=22):
@@ -42,6 +42,12 @@ def bar_pct(pct, ancho=22):
     vacio = ancho - lleno
     return "▓" * lleno + "░" * vacio
 
+def bar_rev(valor, max_val=5, ancho=22):
+    pct = valor / max_val
+    lleno = int(pct * ancho)
+    vacio = ancho - lleno
+    return "▓" * lleno + "░" * vacio
+
 def level(valor):
     if valor >= 4.5:
         return "ALTO"
@@ -52,15 +58,15 @@ def level(valor):
 
 def box_header(title):
     print(f"  ╔{'═' * IW}╗")
-    print(f"  ║ {title}{' ' * (IW - len(title) - 1)}║")
+    print(f"  ║  {title}{' ' * (IW - len(title) - 2)}║")
     print(f"  ╠{'═' * IW}╣")
 
 def box_footer():
     print(f"  ╚{'═' * IW}╝")
     print()
 
-def box_section(title):
-    print(f"  ┌─ {title} {'─' * (IW - len(title) - 3)}┐")
+def box_divider():
+    print(f"  ╟{'─' * IW}╢")
 
 def show_dashboard():
     kpi = get_kpi_metrics().model_dump()
@@ -71,55 +77,61 @@ def show_dashboard():
     insights_text = get_insights()
 
     print()
-    box_header("HABILIDADES BLANDAS")
-
-    total = f"{kpi['total_estudiantes']} estudiantes"
-    prom = f"Promedio: {kpi['promedio_general']}/5"
-    sat = f"Satisfechos: {kpi['satisfaccion_institucion_pct']}%"
-    inte = f"Interes: {kpi['interes_formacion_pct']}%"
-    gap1 = IW - len(total) - len(prom) - 4
-    gap2 = IW - len(sat) - len(inte) - 4
-    print(f"  ║  {total}{' ' * gap1}{prom}  ║")
-    print(f"  ║  {sat}{' ' * gap2}{inte}  ║")
+    print(f"  ╔{'═' * IW}╗")
+    print(f"  ║  HABILIDADES BLANDAS  ─  Dashboard de Analisis{' ' * (IW - 47)}║")
     print(f"  ╠{'═' * IW}╣")
 
-    box_section("PROMEDIOS POR HABILIDAD")
-    print(f"  ║  {'Habilidad':30s} {'Barras':26s} {'Punt.':6s} {'Nivel':5s} ║")
-    print(f"  ║  {'─' * 30} {'─' * 26} {'─' * 6} {'─' * 5} ║")
+    total_s = f"{kpi['total_estudiantes']} estudiantes"
+    prom_s = f"Promedio: {kpi['promedio_general']}/5"
+    sat_s = f"Satisfechos: {kpi['satisfaccion_institucion_pct']}%"
+    inte_s = f"Interes: {kpi['interes_formacion_pct']}%"
+    g1 = IW - len(total_s) - len(prom_s) - 6
+    g2 = IW - len(sat_s) - len(inte_s) - 6
+    print(f"  ║  {total_s}{' ' * g1}{prom_s}  ║")
+    print(f"  ║  {sat_s}{' ' * g2}{inte_s}  ║")
+
+    print(f"  ╠{'═' * IW}╣")
+    print(f"  ║  P R O M E D I O S   P O R   H A B I L I D A D{' ' * (IW - 49)}║")
+    print(f"  ╠{'═' * IW}╣")
     for item in promedios:
         d = item.model_dump()
-        b = bar(d['promedio'], ancho=22)
-        print(f"  ║  {d['habilidad']:30s} {b:26s} {d['promedio']:<6.2f} {level(d['promedio']):5s} ║")
-    print(f"  ╠{'═' * IW}╣")
+        b = bar(d['promedio'], ancho=35)
+        l = level(d['promedio'])
+        print(f"  ║  {d['habilidad']:32s} {b:37s} {d['promedio']:<5.2f}  {l:5s} ║")
 
-    box_section("HABILIDADES A MEJORAR")
-    print(f"  ║  {'Categoria':38s} {'Barras':26s} {'%':6s} {'#':3s} ║")
-    print(f"  ║  {'─' * 38} {'─' * 26} {'─' * 6} {'─' * 3} ║")
-    for item in mejorar:
+    print(f"  ╠{'═' * IW}╣")
+    print(f"  ║  H A B I L I D A D E S   A   M E J O R A R{' ' * (IW - 47)}║")
+    print(f"  ╠{'═' * IW}╣")
+    for item in mejorar[:5]:
         d = item.model_dump()
-        b = bar_pct(d['porcentaje'], ancho=22)
-        print(f"  ║  {d['categoria']:38s} {b:26s} {d['porcentaje']:<6.1f} {d['cantidad_estudiantes']:<3d} ║")
+        b = bar_pct(d['porcentaje'], ancho=35)
+        print(f"  ║  {d['categoria']:42s} {b:37s} {d['porcentaje']:<5.1f}%  ({d['cantidad_estudiantes']}) ║")
+
+    print(f"  ╠{'═' * IW}╣")
+    print(f"  ║  SATISFACCION  ─  INSTITUCION       |  INTERES  ─  FORMACION{' ' * (IW - 68)}║")
     print(f"  ╠{'═' * IW}╣")
 
-    box_section("SATISFACCION INSTITUCIONAL")
-    print(f"  ║  {'Respuesta':15s} {'Barras':26s} {'%':6s} {'#':3s} ║")
-    print(f"  ║  {'─' * 15} {'─' * 26} {'─' * 6} {'─' * 3} ║")
-    for item in satisfaccion:
-        d = item.model_dump()
-        b = bar_pct(d['porcentaje'], ancho=22)
-        print(f"  ║  {d['respuesta']:15s} {b:26s} {d['porcentaje']:<6.1f} {d['cantidad']:<3d} ║")
-    print(f"  ╠{'═' * IW}╣")
+    max_rows = max(len(satisfaccion), len(interes))
+    for i in range(max_rows):
+        left = satisfaccion[i] if i < len(satisfaccion) else None
+        right = interes[i] if i < len(interes) else None
+        if left:
+            ld = left.model_dump()
+            lb = bar_pct(ld['porcentaje'], ancho=15)
+            lpart = f"  {ld['respuesta']:13s} {lb:17s} {ld['porcentaje']:<5.1f}%  ({ld['cantidad']})"
+        else:
+            lpart = " " * 42
+        if right:
+            rd = right.model_dump()
+            rb = bar_pct(rd['porcentaje'], ancho=15)
+            rpart = f"  {rd['respuesta']:13s} {rb:17s} {rd['porcentaje']:<5.1f}%  ({rd['cantidad']})"
+        else:
+            rpart = " " * 42
+        print(f"  ║{lpart}  │{rpart}  ║")
 
-    box_section("INTERES EN FORMACION")
-    print(f"  ║  {'Respuesta':15s} {'Barras':26s} {'%':6s} {'#':3s} ║")
-    print(f"  ║  {'─' * 15} {'─' * 26} {'─' * 6} {'─' * 3} ║")
-    for item in interes:
-        d = item.model_dump()
-        b = bar_pct(d['porcentaje'], ancho=22)
-        print(f"  ║  {d['respuesta']:15s} {b:26s} {d['porcentaje']:<6.1f} {d['cantidad']:<3d} ║")
     print(f"  ╠{'═' * IW}╣")
-
-    box_section("INSIGHTS")
+    print(f"  ║  I N S I G H T S{' ' * (IW - 26)}║")
+    print(f"  ╠{'═' * IW}╣")
     words = insights_text.split()
     lines = []
     cur = ""

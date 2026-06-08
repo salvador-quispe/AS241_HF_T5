@@ -18,6 +18,7 @@ Analiza las respuestas del formulario Google relacionadas a:
 ## Ejecutar
 
 ```bash
+pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 

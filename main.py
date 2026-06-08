@@ -31,10 +31,10 @@ app.include_router(api_router)
 @app.get("/")
 def root():
     return {
-        "app": "AS241_HF_T5 - Habilidades Blandas API",
+        "app": "AS241_HF_T5 - BI Dashboard API",
         "version": "1.0.0",
-        "modulo": "Habilidades Blandas",
-        "endpoints": {
+        "modulos": ["Habilidades Blandas", "Habilidades Técnicas"],
+        "habilidades_blandas": {
             "dashboard": "/api/habilidades-blandas/dashboard",
             "kpi": "/api/habilidades-blandas/kpi",
             "promedios": "/api/habilidades-blandas/promedios",
@@ -42,6 +42,12 @@ def root():
             "satisfaccion": "/api/habilidades-blandas/satisfaccion",
             "interes": "/api/habilidades-blandas/interes",
             "insights": "/api/habilidades-blandas/insights",
+        },
+        "habilidades_tecnicas": {
+            "dashboard": "/api/habilidades-tecnicas/dashboard",
+            "matriz": "/api/habilidades-tecnicas/matriz",
+            "kpi": "/api/habilidades-tecnicas/kpi",
+            "reload": "/api/habilidades-tecnicas/reload",
         },
     }
 

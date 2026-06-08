@@ -16,6 +16,17 @@ from app.services.habilidades_blandas_service import (
     invalidate_cache
 )
 
+try:
+    from app.services.habilidades_tecnicas_service import (
+        build_dashboard as build_dashboard_tecnicas,
+        get_kpi_metrics as get_kpi_tecnicas,
+        get_matriz_operacional,
+        invalidate_cache as invalidate_cache_tecnicas,
+    )
+    _tecnicas_available = True
+except ImportError:
+    _tecnicas_available = False
+
 W = 76
 IW = W - 4
 
@@ -213,21 +224,40 @@ def show_insights_view():
 def show_list():
     print()
     box_header("COMANDOS DISPONIBLES")
-    cmds = [
-        ("cli.py", "Dashboard completo con todas las metricas"),
-        ("cli.py kpi", "Indicadores KPI con barras"),
-        ("cli.py promedios", "Promedios por habilidad blanda"),
+    print(f"  ║  {'HABILIDADES BLANDAS':72s} ║")
+    cmds_b = [
+        ("cli.py", "Dashboard completo"),
+        ("cli.py kpi", "Indicadores KPI"),
+        ("cli.py promedios", "Promedios por habilidad"),
         ("cli.py mejorar", "Habilidades a mejorar"),
         ("cli.py satisfaccion", "Satisfaccion institucional"),
         ("cli.py interes", "Interes en formacion"),
         ("cli.py insights", "Analisis narrativo"),
-        ("cli.py refresh", "Recargar datos del dashboard"),
-        ("cli.py list", "Mostrar esta ayuda"),
+        ("cli.py refresh", "Recargar datos"),
     ]
-    for cmd, desc in cmds:
+    for cmd, desc in cmds_b:
         gap = IW - len(cmd) - len(desc) - 6
         print(f"  ║    python {cmd}{' ' * gap}{desc}  ║")
+    if _tecnicas_available:
+        print(f"  ║  {'':72s} ║")
+        print(f"  ║  {'HABILIDADES TECNICAS':72s} ║")
+        cmds_t = [
+            ("cli.py tecnicas", "Dashboard completo tecnicas"),
+            ("cli.py tecnicas-kpi", "KPI tecnicas"),
+            ("cli.py tecnicas-matriz", "Matriz Operacional"),
+            ("cli.py tecnicas-refresh", "Recargar datos tecnicas"),
+        ]
+        for cmd, desc in cmds_t:
+            gap = IW - len(cmd) - len(desc) - 6
+            print(f"  ║    python {cmd}{' ' * gap}{desc}  ║")
+    print(f"  ║  {'':72s} ║")
+    print(f"  ║  {'AYUDA':72s} ║")
+    print(f"  ║    python cli.py list{' ' * (IW - 23)}║")
     box_footer()
+
+
+def _tecnicas_not_available():
+    print(f"\n  ║  Modulo de Habilidades Tecnicas no disponible  ║\n")
 
 
 def main():
@@ -255,12 +285,73 @@ def main():
         invalidate_cache()
         build_dashboard(force_refresh=True)
         show_dashboard()
+    elif cmd == "tecnicas":
+        if _tecnicas_available:
+            show_dashboard_tecnicas()
+        else:
+            _tecnicas_not_available()
+    elif cmd == "tecnicas-kpi":
+        if _tecnicas_available:
+            show_kpi_tecnicas()
+        else:
+            _tecnicas_not_available()
+    elif cmd == "tecnicas-matriz":
+        if _tecnicas_available:
+            show_matriz()
+        else:
+            _tecnicas_not_available()
+    elif cmd == "tecnicas-refresh":
+        if _tecnicas_available:
+            invalidate_cache_tecnicas()
+            build_dashboard_tecnicas(force_refresh=True)
+            show_dashboard_tecnicas()
+        else:
+            _tecnicas_not_available()
     elif cmd in ("list", "help", "-h", "--help"):
         show_list()
     else:
         print(f"\n  Comando '{cmd}' no reconocido.\n")
         print("  Usa 'python cli.py list' para ver los comandos disponibles.\n")
         sys.exit(1)
+
+
+def show_dashboard_tecnicas():
+    data = build_dashboard_tecnicas()
+    print()
+    box_header("HABILIDADES TECNICAS")
+    if hasattr(data, 'model_dump'):
+        data = data.model_dump()
+    kpi_data = get_kpi_tecnicas().model_dump()
+    print(f"  ║  {'Estudiantes':30s} {data.get('total_estudiantes', kpi_data.get('total_estudiantes', 'N/A')):<42s} ║")
+    print(f"  ║  {'Conocimiento Tecnico Prom':30s} {kpi_data.get('conocimiento_tecnico_promedio', 'N/A'):<6.2f}         ║")
+    if _tecnicas_available:
+        print(f"  ║  {'Porcentaje Aplicacion Real':30s} {kpi_data.get('porcentaje_aplicacion_real', 'N/A'):<6.2f} {'%':36s} ║")
+    box_footer()
+
+
+def show_kpi_tecnicas():
+    data = get_kpi_tecnicas().model_dump()
+    print()
+    box_header("INDICADORES KPI - TECNICAS")
+    for k, v in data.items():
+        k_show = k.replace("_", " ").title()
+        print(f"  ║  {k_show:35s} {str(v):<35s} ║")
+    box_footer()
+
+
+def show_matriz():
+    data = get_matriz_operacional()
+    print()
+    box_header("MATRIZ OPERACIONAL DE REQUERIMIENTOS")
+    subcats = data.subcategorias if hasattr(data, 'subcategorias') else []
+    for item in subcats:
+        d = item.model_dump() if hasattr(item, 'model_dump') else item
+        cat = d.get('categoria', '')
+        votos = d.get('votos', 0)
+        pct = d.get('porcentaje_del_subtotal', 0)
+        b = bar_pct(pct, ancho=30)
+        print(f"  ║  {cat:42s} {b:32s} {pct:<5.1f}% ({votos} votos) ║")
+    box_footer()
 
 
 if __name__ == "__main__":
